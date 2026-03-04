@@ -23,14 +23,14 @@ export async function POST(req: Request) {
             const finalSysInstruction = "You are a conversational AI coach. " + systemInstruction + "\nIMPORTANT: You MUST reply entirely in natural conversational Hindi, written using the English alphabet (Hinglish). Do NOT reply in English. Do NOT use the Devanagari script.";
             sarvamHistory.unshift({ role: 'system', content: finalSysInstruction });
 
-            const response = await fetch('https://api.sarvam.ai/chat/completions', {
+            const response = await fetch('https://api.sarvam.ai/v1/chat/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'api-subscription-key': sarvamApiKey
                 },
                 body: JSON.stringify({
-                    model: 'sarvam-2-chat-v0.1', // Ensure correct model string if needed, or 'sarvam-m' etc.
+                    model: 'sarvam-m',
                     messages: sarvamHistory,
                     temperature: 0.7,
                     max_tokens: 500,
