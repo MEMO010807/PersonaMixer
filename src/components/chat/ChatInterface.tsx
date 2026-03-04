@@ -251,41 +251,47 @@ export default function ChatInterface() {
     };
 
     return (
-        <div className="flex h-screen bg-[#0f172a] text-slate-50 overflow-hidden font-sans">
+        <div className="flex h-screen bg-[#0f172a] text-slate-50 overflow-hidden font-sans relative">
             {/* Sidebar Overlay for Mobile */}
             {showSidebar && (
-                <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setShowSidebar(false)} />
+                <div
+                    className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm transition-opacity"
+                    onClick={() => setShowSidebar(false)}
+                />
             )}
 
             {/* Sidebar */}
-            <div className={`fixed inset-y-0 left-0 z-50 w-64 glass-panel border-r border-slate-700/50 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${showSidebar ? "translate-x-0" : "-translate-x-full"}`}>
+            <div className={`fixed inset-y-0 left-0 z-50 w-72 glass-panel border-r border-slate-700/50 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${showSidebar ? "translate-x-0" : "-translate-x-full"}`}>
                 <div className="p-4 border-b border-slate-700/50 flex justify-between items-center bg-slate-800/20">
                     <h2 className="font-bold text-lg text-blue-400 tracking-wide">Conversations</h2>
-                    <button className="md:hidden p-1 hover:bg-slate-700 rounded" onClick={() => setShowSidebar(false)}>
-                        <ChevronLeft className="w-5 h-5" />
+                    <button className="md:hidden p-2 hover:bg-slate-700/50 rounded-xl transition-colors" onClick={() => setShowSidebar(false)}>
+                        <ChevronLeft className="w-5 h-5 text-slate-300" />
                     </button>
                 </div>
-                <div className="p-2 space-y-2 overflow-y-auto h-[calc(100vh-70px)]">
+                <div className="p-3 space-y-2 overflow-y-auto h-[calc(100vh-73px)] custom-scrollbar">
                     <button
-                        onClick={() => user && createNewChat(user.id)}
-                        className="w-full text-left px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 font-medium transition-all shadow-lg shadow-blue-500/20 mb-4 flex items-center gap-2"
+                        onClick={() => {
+                            if (user) createNewChat(user.id);
+                            setShowSidebar(false);
+                        }}
+                        className="w-full text-left px-4 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold transition-all shadow-lg shadow-blue-500/20 mb-4 flex items-center gap-2"
                     >
-                        + New Chat
+                        <span className="text-xl leading-none mb-0.5">+</span> New Chat
                     </button>
                     {chats.map(c => (
-                        <div key={c.id} className="relative group mb-1">
+                        <div key={c.id} className="relative group mb-1.5">
                             {editingChatId === c.id ? (
-                                <div className={`w-full flex items-center px-4 py-3 rounded-xl text-sm transition-colors bg-slate-700/80 border border-blue-500 shadow-inner`}>
+                                <div className={`w-full flex items-center px-4 py-3 rounded-xl text-sm transition-colors bg-slate-700 border border-blue-500 shadow-inner`}>
                                     <input
                                         type="text"
                                         autoFocus
                                         value={editingTitle}
                                         onChange={(e) => setEditingTitle(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && handleRenameChat(c.id)}
-                                        className="bg-transparent border-none outline-none text-slate-200 w-full"
+                                        className="bg-transparent border-none outline-none text-slate-100 w-full font-medium"
                                         placeholder="Chat title..."
                                     />
-                                    <button onClick={() => handleRenameChat(c.id)} className="ml-2 text-blue-400 hover:text-blue-300 transition-colors">
+                                    <button onClick={() => handleRenameChat(c.id)} className="ml-2 text-blue-400 hover:text-blue-300 transition-colors p-1 bg-slate-800 rounded-md">
                                         <Check className="w-4 h-4" />
                                     </button>
                                 </div>
@@ -293,26 +299,27 @@ export default function ChatInterface() {
                                 <>
                                     <button
                                         onClick={() => { loadChat(c.id); setShowSidebar(false); }}
-                                        className={`w-full text-left px-4 py-3 rounded-xl text-sm transition-colors ${c.id === currentChatId ? 'bg-slate-700/60 border border-slate-600' : 'hover:bg-slate-800 border border-transparent'} pr-16`}
+                                        className={`w-full text-left px-4 py-3 rounded-xl text-sm transition-all duration-200 ${c.id === currentChatId ? 'bg-slate-700/80 border border-slate-600 shadow-sm' : 'hover:bg-slate-800/60 border border-transparent'} pr-16`}
                                     >
-                                        <div className="truncate text-slate-200 font-medium">{c.title || new Date(c.created_at).toLocaleDateString()}</div>
-                                        <div className="text-xs text-slate-500 mt-1 truncate">{c.id.split('-')[0]}</div>
+                                        <div className={`truncate font-medium ${c.id === currentChatId ? 'text-blue-100' : 'text-slate-300'}`}>
+                                            {c.title || new Date(c.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                        </div>
                                     </button>
-                                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all flex items-center gap-1">
+                                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all flex items-center gap-0.5 md:opacity-0 opacity-100">
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setEditingChatId(c.id);
                                                 setEditingTitle(c.title || new Date(c.created_at).toLocaleDateString());
                                             }}
-                                            className="p-1.5 rounded-lg text-slate-500 hover:text-blue-400 hover:bg-slate-700 transition-colors"
+                                            className="p-2 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-slate-700/80 transition-colors"
                                             title="Rename Chat"
                                         >
                                             <Edit2 className="w-3.5 h-3.5" />
                                         </button>
                                         <button
                                             onClick={(e) => { e.stopPropagation(); deleteChat(c.id); }}
-                                            className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-slate-700 transition-colors"
+                                            className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-slate-700/80 transition-colors"
                                             title="Delete Chat"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />
@@ -328,25 +335,31 @@ export default function ChatInterface() {
             {/* Main Chat Area */}
             <div className="flex-1 flex flex-col h-full bg-[#0a0f1c] relative z-10 w-full overflow-hidden">
                 {speechError && (
-                    <div className="absolute top-0 left-0 right-0 bg-red-900/80 text-white text-xs text-center py-1 z-50" dangerouslySetInnerHTML={{ __html: speechError }} />
+                    <div className="absolute top-0 left-0 right-0 bg-red-900/90 text-white text-sm font-medium text-center py-2 z-50 shadow-md flex items-center justify-center gap-2">
+                        <span dangerouslySetInnerHTML={{ __html: speechError }} />
+                    </div>
                 )}
 
                 {/* Header */}
-                <header className="h-16 flex items-center justify-between px-4 glass-panel border-b border-slate-800 z-20 sticky top-0">
+                <header className="h-16 flex items-center justify-between px-4 glass-panel border-b border-slate-800/80 z-20 sticky top-0 shadow-sm">
                     <div className="flex items-center gap-3">
-                        <button className="md:hidden p-2 rounded-lg hover:bg-slate-800 text-slate-300" onClick={() => setShowSidebar(true)}>
+                        <button
+                            className="md:hidden p-2 -ml-2 rounded-xl hover:bg-slate-800 text-slate-300 transition-colors"
+                            onClick={() => setShowSidebar(true)}
+                            title="Open Chat History"
+                        >
                             <Menu className="w-6 h-6" />
                         </button>
-                        <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400">
+                        <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 tracking-tight">
                             PersonaMixer
                         </h1>
                     </div>
                     <button
                         onClick={() => setShowMixer(true)}
-                        className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-full border border-slate-700 text-sm font-medium transition-all"
+                        className="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-700 px-3.5 py-2 rounded-full border border-slate-700/50 text-sm font-semibold transition-all shadow-sm hover:shadow-md hover:border-slate-600"
                     >
                         <Settings className="w-4 h-4 text-indigo-400" />
-                        <span className="hidden sm:inline text-slate-300">Mixer</span>
+                        <span className="hidden sm:inline text-slate-200">Mixer</span>
                     </button>
                 </header>
 
