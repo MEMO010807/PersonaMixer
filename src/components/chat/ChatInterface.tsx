@@ -25,6 +25,7 @@ export default function ChatInterface() {
 
     const [showMixer, setShowMixer] = useState(false);
     const [showSidebar, setShowSidebar] = useState(false);
+    const [language, setLanguage] = useState<'english' | 'hindi'>('english');
 
     const [traitConfig, setTraitConfig] = useState<TraitConfig>({
         professional: 50,
@@ -173,12 +174,12 @@ export default function ChatInterface() {
         }));
         history.push({ role: "user", parts: [{ text: currentInput }] });
 
-        // 3. Call Engine A
+        // 3. Call API
         try {
             const res = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ history, sliderConfig: traitConfig })
+                body: JSON.stringify({ history, sliderConfig: traitConfig, language })
             });
             const data = await res.json();
 
@@ -354,13 +355,30 @@ export default function ChatInterface() {
                             PersonaMixer
                         </h1>
                     </div>
-                    <button
-                        onClick={() => setShowMixer(true)}
-                        className="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-700 px-3.5 py-2 rounded-full border border-slate-700/50 text-sm font-semibold transition-all shadow-sm hover:shadow-md hover:border-slate-600"
-                    >
-                        <Settings className="w-4 h-4 text-indigo-400" />
-                        <span className="hidden sm:inline text-slate-200">Mixer</span>
-                    </button>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        {/* Language Toggle */}
+                        <div className="flex items-center bg-slate-800/80 rounded-full p-1 border border-slate-700/50 shadow-sm">
+                            <button
+                                onClick={() => setLanguage('english')}
+                                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${language === 'english' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-slate-400 hover:text-slate-200'}`}
+                            >
+                                EN
+                            </button>
+                            <button
+                                onClick={() => setLanguage('hindi')}
+                                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${language === 'hindi' ? 'bg-orange-600 text-white shadow-md shadow-orange-500/20' : 'text-slate-400 hover:text-slate-200'}`}
+                            >
+                                HIN
+                            </button>
+                        </div>
+                        <button
+                            onClick={() => setShowMixer(true)}
+                            className="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-700 px-3.5 py-2 rounded-full border border-slate-700/50 text-sm font-semibold transition-all shadow-sm hover:shadow-md hover:border-slate-600"
+                        >
+                            <Settings className="w-4 h-4 text-indigo-400" />
+                            <span className="hidden sm:inline text-slate-200">Mixer</span>
+                        </button>
+                    </div>
                 </header>
 
                 {/* Messages */}
@@ -435,7 +453,7 @@ export default function ChatInterface() {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                            placeholder={isListening ? (interimText || "Listening...") : "Type your message..."}
+                            placeholder={isListening ? (interimText || "Listening...") : (language === 'hindi' ? "Bolo kya baat karni hai..." : "Type your message...")}
                             className={`flex-1 bg-transparent border-none focus:ring-0 text-white px-4 text-sm w-full outline-none ${isListening && interimText ? 'placeholder-indigo-300' : 'placeholder-slate-500'}`}
                         />
                         <button
