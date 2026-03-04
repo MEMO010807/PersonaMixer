@@ -1,0 +1,1 @@
+ALTER TABLE public.chats ADD COLUMN IF NOT EXISTS title TEXT;
